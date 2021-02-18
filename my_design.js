@@ -23,7 +23,6 @@ function debug(inspiration) {
     noLoop()
 }
 
-let vertices = [[20, 100], [300, 100], [500, 100]]
 
 function draw_vertices(vertices) {
     fill("red")
@@ -35,12 +34,37 @@ function draw_vertices(vertices) {
     endShape(CLOSE)
 }
 
+class Rect {
+    constructor(scale_x, scale_y, n_vertices, s_vertices, e_vertices, w_vertices) {
+        this.scale_x = scale_x
+        this.scale_y = scale_y
+        this.n_vertices = n_vertices
+        this.s_vertices = s_vertices
+        this.e_vertices = e_vertices
+        this.w_vertices = w_vertices
+    }
+    // all_vertices() {
+    //     return this.n_vertices.concat(this.s_vertices, this.e_vertices, this.w_vertices);
+    // }
+}
+
+
+let nv = [[20, 100], [300, 100], [500, 100]]
+let sv = [[20, 200], [300, 200], [500, 200]]
+let ev = [[500, 100], [500, 150], [500, 200]]
+let wv = [[20, 100], [20, 150], [20, 200]]
 function p4_render(design, inspiration) {
     background("white")
     fill("blue")
     ellipse(10,200,10,20)
-    vertices = subdivide_edge(vertices, 4, split_horizontal_edge)
-    draw_vertices(vertices)
+    nv = subdivide_edge(nv, 4, split_horizontal_edge)
+    draw_vertices(nv)
+    sv = subdivide_edge(sv, 4, split_horizontal_edge)
+    draw_vertices(sv)
+    wv = subdivide_edge(wv, 4, split_vertical_edge)
+    draw_vertices(wv)
+    ev = subdivide_edge(ev, 4, split_vertical_edge)
+    draw_vertices(ev)
 }
 
 function subdivide_edge(vertices, amt, split_edge_func) {
@@ -61,6 +85,13 @@ function subdivide_edge(vertices, amt, split_edge_func) {
     }
     print(result)
     return result;
+}
+
+function subdivide_rect(rect, amt) {
+    rect.n_vertices = subdivide_edge(rect.n_vertices, 4, split_horizontal_edge)
+    rect.s_vertices = subdivide_edge(rect.s_vertices, 4, split_horizontal_edge)
+    rect.e_vertices = subdivide_edge(rect.w_vertices, 4, split_vertical_edge)
+    rect.w_vertices = subdivide_edge(rect.w_vertices, 4, split_vertical_edge)
 }
 
 function split_horizontal_edge(vertex_1, vertex_2) {
