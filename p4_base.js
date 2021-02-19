@@ -9,7 +9,8 @@ let currentInspiration;
 let currentCanvas;
 let currentInspirationPixels;
 
-let rectCount = 200;
+let rectCount = 120;
+let filterType = "Watercoloured";
 function preload() {
   
 
@@ -28,6 +29,11 @@ function preload() {
 
   restart.onclick = () =>
     inspirationChanged(allInspirations[dropper.value]);
+
+  filterChange.onclick = () => {
+    filterType = filterChange.value;
+    inspirationChanged(allInspirations[dropper.value]);
+  }
 
   rect_count.oninput = () => { rectCount = parseInt(rect_count.value, 10); };
 
@@ -108,6 +114,9 @@ function draw() {
   if (nextScore > currentScore) {
     currentScore = nextScore;
     bestDesign = currentDesign;
+    //
+    updateRectColors();
+    // 
     memorialize();
     bestScore.innerHTML = currentScore;
   }

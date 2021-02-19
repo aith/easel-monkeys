@@ -4,16 +4,19 @@
 
 class Rect {
     // NOTE the vertices order
-    constructor(scale_x, scale_y, color, x, y) {
+    constructor(scale_x, scale_y, r, g, b, a, x, y) {
         this.scale_x = scale_x
         this.scale_y = scale_y
         this.n_vertices = [[0, 0], [scale_x, 0]]
-        this.e_vertices = [[scale_x-1, 0], [scale_x-1, scale_y-1]]
-        this.s_vertices = [[scale_x-1, scale_y], [0, scale_y-1]]
-        this.w_vertices = [[0,scale_y-1], [0,0]]
+        this.e_vertices = [[scale_x, 0], [scale_x, scale_y]]
+        this.s_vertices = [[scale_x, scale_y], [0, scale_y]]
+        this.w_vertices = [[0,scale_y], [0,0]]
+        this.r = r
+        this.g = g
+        this.b = b
+        this.a = a
         this.x = x
         this.y = y
-        this.color = color
     }
     all_vertices() {
         return this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices);
@@ -35,20 +38,23 @@ function p4_inspirations() {
 let can_height;
 let can_width;
 let seed;
+let subdivision_offset;
 function p4_initialize(inspiration) {
     seed = Math.random() * 1000
     randomSeed(seed)
     print(seed)
 
-    let scalar = 2
+    let scalar = 10
     can_width = inspiration.image.width / scalar
     can_height = inspiration.image.height / scalar
     resizeCanvas(can_width, can_height);
+    subdivision_offset = max(can_width, can_height) / 200;
     generateRects()
 
-    debug(inspiration);
+    // debug(inspiration);
 
-    return {};
+    let bgColor = [122,122,122]
+    return { rects: rects, bgColor: bgColor};
 }
 
 function regenerateRects(num) {
@@ -66,8 +72,9 @@ function debug(inspiration) {
     can_width = inspiration.image.width / scalar
     can_height = inspiration.image.height / scalar
     resizeCanvas(can_width, can_height);
+    subdivision_offset = max(can_width, can_height) / 200;
     // noLoop()
-    frameRate(4)
+    frameRate(60)
 }
 
 
@@ -85,26 +92,61 @@ let rects = []
 function generateRects(n = 120) {
     rects = []
     let num_rects = n;
-    let subd_per_rect = 8;
-    for(let idx = 0; idx < num_rects; idx++) {
-        let rect_x = random(0, can_width)
-        let rect_y = random(0, can_height)
-        let rect_width = random(40, can_width - rect_x)  // TODO make these scale with image/canv
-        let rect_height = random(40, can_height - rect_y)
-        let r = new Rect(rect_width, rect_height, color(random(100, 255), 122), rect_x, rect_y)
-        subdivide_rect(r, subd_per_rect);
-        rects.push(r)
+
+    let subd_per_rect= 3;
+    let max_width = min(can_width, can_height) / 3;
+    let max_height = min(can_width, can_height) / 3;
+    let min_width = min(can_width, can_height) / 10;
+    let min_height = min(can_width, can_height) / 10;
+
+    let fixed_height = min(can_width, can_height) / 6;
+    let fixed_width = min(can_width, can_height) / 6;
+    let subd_per_rect_fixed = 0;
+
+    let numPerRow = can_width / fixed_width;
+    let numPerCol = can_height / fixed_height;
+
+    if(filterType == "Watercoloured"){
+        for(let idx = 0; idx < num_rects; idx++) {
+            let rect_width = random(min_width, max_width)  // TODO make these scale with image/canv
+            let rect_height = random(min_height, max_height)
+            let rect_x = random(-rect_width/2, can_width - rect_width/2)
+            let rect_y = random(-rect_height/2, can_height - rect_height/2)  // the /2 to let them bleed out
+            let rgb = random(100, 255)
+            let a = 125
+            let r = new Rect(rect_width, rect_height, rgb, rgb, rgb, a, rect_x, rect_y)
+            subdivide_rect(r, subd_per_rect);
+            rects.push(r)
+        }
+    }
+    else if(filterType == "Pixelated")
+    {
+        for(let x = 0; x < numPerRow; x++) {
+            for(let y = 0; y < numPerCol; y++) {
+                let rect_width = fixed_width  // TODO make these scale with image/canv
+                let rect_height = fixed_height
+                let rect_x = fixed_width * x;
+                let rect_y = fixed_height * y;
+                let rgb = random(100, 255)
+                let a = 125
+                let r = new Rect(rect_width, rect_height, rgb, rgb, rgb, a, rect_x, rect_y)
+                subdivide_rect(r, subd_per_rect_fixed);
+                rects.push(r)
+            }
+        }
     }
 }
 
 
 function p4_render(design, inspiration) {
-    background("white")
-    for(let idx = 0; idx < rects.length; idx++) {
-        let r = rects[idx]
-        fill(r.color)
+    background(design["bgColor"])
+    let rectsArr = design["rects"]
+    for(let idx = 0; idx < rectsArr.length; idx++) {
+        let r = rectsArr[idx]
+        fill(color(r.r, r.g, r.b, r.a))
         translate(r.x, r.y)
-        draw_vertices(rects[idx].all_vertices())
+        let all_vertices = r.n_vertices.concat(r.e_vertices, r.s_vertices, r.w_vertices);
+        draw_vertices(all_vertices)
         translate(-r.x, -r.y)
     }
 }
@@ -127,24 +169,45 @@ function subdivide_edge(vertices, amt, split_edge_func) {
 }
 
 function subdivide_rect(rect, amt) {
-    rect.n_vertices = subdivide_edge(rect.n_vertices, 4, split_horizontal_edge)
-    rect.e_vertices = subdivide_edge(rect.e_vertices, 4, split_vertical_edge)
-    rect.s_vertices = subdivide_edge(rect.s_vertices, 4, split_horizontal_edge)
-    rect.w_vertices = subdivide_edge(rect.w_vertices, 4, split_vertical_edge)
+    rect.n_vertices = subdivide_edge(rect.n_vertices, amt, split_horizontal_edge)
+    rect.e_vertices = subdivide_edge(rect.e_vertices, amt, split_vertical_edge)
+    rect.s_vertices = subdivide_edge(rect.s_vertices, amt, split_horizontal_edge)
+    rect.w_vertices = subdivide_edge(rect.w_vertices, amt, split_vertical_edge)
 }
 
 function split_horizontal_edge(vertex_1, vertex_2) {
-    let offset = 5
     let mid_x = (vertex_1[0] + vertex_2[0]) / 2 | 0;
-    let mid_y = (vertex_1[1] + vertex_2[1]) / 2 + random(-offset, offset)
+    let mid_y = (vertex_1[1] + vertex_2[1]) / 2 + random(-subdivision_offset, subdivision_offset)
     return [vertex_1, [mid_x, mid_y], vertex_2]
 }
 
 function split_vertical_edge(vertex_1, vertex_2) {
-    let mid_x = (vertex_1[0] + vertex_2[0]) / 2 + random(-5, 5)
+    let offset = can_height/200;
+    let mid_x = (vertex_1[0] + vertex_2[0]) / 2 + random(-subdivision_offset, subdivision_offset)
     let mid_y = (vertex_1[1] + vertex_2[1]) / 2 | 0;
     return [vertex_1, [mid_x, mid_y], vertex_2]
 }
 
+let last_colors_tested;
 function p4_mutate(design, inspiration, rate) {
+    let rectArray = design["rects"];
+    let step = 3;
+    design["bgColor"][0] += rate * randomGaussian(0, step);
+    design["bgColor"][1] += rate * randomGaussian(0, step);
+    design["bgColor"][2] += rate * randomGaussian(0, step);
+    for(rect of rectArray) {
+        [rect.r, rect.b, rect.g] = mutateColor(rect.r, rect.b, rect.g, rate)
+    }
+}
+
+function mutateColor(r, g, b, rate) {
+    let step = 20
+    r += rate * randomGaussian(0, step)
+    b += rate * randomGaussian(0, step)
+    g += rate * randomGaussian(0, step)
+    return [r, g, b]
+}
+
+function updateRectColors() {  // run when best score is foudn
+    
 }
