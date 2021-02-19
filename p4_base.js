@@ -35,9 +35,9 @@ function preload() {
     inspirationChanged(allInspirations[dropper.value]);
   }
 
-  rect_count.oninput = () => { rectCount = parseInt(rect_count.value, 10); };
+  // rect_count.oninput = () => { rectCount = parseInt(rect_count.value, 10); };
 
-  regenerate.onclick = () => regenerateRects(rectCount);
+  // regenerate.onclick = () => regenerateRects(rectCount);
 }
 
 function inspirationChanged(nextInspiration) {

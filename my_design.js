@@ -27,10 +27,21 @@ class Rect {
 function p4_inspirations() {
     let imgs = [
         {
+            name: "Bold and Brash - Unknown",
+            assetUrl: "img/bandb.jpeg"
+        },
+        {
+            name: "Starry Night - Vincent Van Gogh",
+            assetUrl: "img/starrynight.jpeg"
+        },
+        {
+            name: "Mona Lisa - Leonardo Da Vinci",
+            assetUrl: "img/monalisa.jpeg"
+        },
+        {
             name: "Nighthawks - Edward Hopper",
-            assetUrl: "https://cdn.glitch.com/a9ccced7-5149-4223-becd-92be9a575a62%2Fnighthawks.jpg?v=1613688224211"
+            assetUrl: "img/starrynight.jpeg"
         }
-
     ];
     return imgs;
 }
@@ -99,8 +110,8 @@ function generateRects(n = 120) {
     let min_width = min(can_width, can_height) / 10;
     let min_height = min(can_width, can_height) / 10;
 
-    let fixed_height = min(can_width, can_height) / 6;
-    let fixed_width = min(can_width, can_height) / 6;
+    let fixed_height = min(can_width, can_height) / 9;
+    let fixed_width = min(can_width, can_height) / 9;
     let subd_per_rect_fixed = 0;
 
     let numPerRow = can_width / fixed_width;
