@@ -1,5 +1,22 @@
 /* exported p4_inspirations, p4_initialize, p4_render, p4_mutate */
 
+class Rect {
+    // NOTE the vertices order
+    constructor(scale_x, scale_y, color) {
+        this.scale_x = scale_x
+        this.scale_y = scale_y
+        this.n_vertices = [[0, 0], [scale_x, 0]]
+        this.e_vertices = [[scale_x-1, 0], [scale_x-1, scale_y-1]]
+        this.s_vertices = [[scale_x-1, scale_y], [0, scale_y-1]]
+        this.w_vertices = [[0,scale_y-1], [0,0]]
+        this.color = color
+    }
+    all_vertices() {
+        print(this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices))
+        return this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices);
+    }
+}
+
 
 function p4_inspirations() {
     let imgs = [
@@ -12,20 +29,30 @@ function p4_inspirations() {
     return imgs;
 }
 
+let height;
+let width;
 function p4_initialize(inspiration) {
-    resizeCanvas(inspiration.image.width / 9, inspiration.image.height / 9);
+    let scalar = 9
+    width = inspiration.image.width / scalar
+    height = inspiration.image.height / scalar
+    resizeCanvas(width, height);
+
     debug(inspiration);
+
     return {};
 }
 
 function debug(inspiration) {
-    resizeCanvas(inspiration.image.width / 2, inspiration.image.height / 2);
+    let scalar = 2
+    width = inspiration.image.width / scalar
+    height = inspiration.image.height / scalar
+    resizeCanvas(width, height);
     noLoop()
 }
 
 
 function draw_vertices(vertices) {
-    fill("red")
+    noStroke()
     beginShape()
     for (let idx = 0; idx < vertices.length; idx++) {
         let pair = vertices[idx]
@@ -34,33 +61,31 @@ function draw_vertices(vertices) {
     endShape(CLOSE)
 }
 
-class Rect {
-    // NOTE the vertices order
-    constructor(scale_x, scale_y, n_vertices, e_vertices, s_vertices, w_vertices) {
-        this.scale_x = scale_x
-        this.scale_y = scale_y
-        this.n_vertices = n_vertices
-        this.e_vertices = e_vertices
-        this.s_vertices = s_vertices
-        this.w_vertices = w_vertices
-    }
-    all_vertices() {
-        print(this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices))
-        return this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices);
-    }
-}
-
 
 let nv = [[20, 100],  [500, 100]]
 let ev = [[500, 100], [500, 200]]
 let sv = [[500, 200],  [20, 200]]
 let wv = [[20, 200],  [20, 100]]
+
 function p4_render(design, inspiration) {
     background("white")
     fill("blue")
-    let r = new Rect(1, 1, nv, ev, sv, wv)
-    subdivide_rect(r, 4);
-    draw_vertices(r.all_vertices())
+    let num_rects = 4;
+    for(let idx = 0; idx < num_rects; idx++) {
+        let rect_width = random(100, width)  // TODO make these scale with image/canv
+        let rect_height = random(100, height)
+        let rect_x = random(0, width)
+        let rect_y = random(0, height)
+        print(rect_x)
+        print(rect_y)
+        translate(rect_x, rect_y)
+        let r = new Rect(rect_width, rect_height, color(random(100, 255), 122))
+        print(r.color)
+        subdivide_rect(r, 4);
+        fill(r.color)
+        draw_vertices(r.all_vertices())
+        translate(-rect_x, -rect_y)
+    }
 }
 
 function subdivide_edge(vertices, amt, split_edge_func) {
@@ -88,8 +113,9 @@ function subdivide_rect(rect, amt) {
 }
 
 function split_horizontal_edge(vertex_1, vertex_2) {
+    let offset = 5
     let mid_x = (vertex_1[0] + vertex_2[0]) / 2 | 0;
-    let mid_y = (vertex_1[1] + vertex_2[1]) / 2 + random(-5, 5)
+    let mid_y = (vertex_1[1] + vertex_2[1]) / 2 + random(-offset, offset)
     return [vertex_1, [mid_x, mid_y], vertex_2]
 }
 
