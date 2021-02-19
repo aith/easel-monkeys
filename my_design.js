@@ -1,14 +1,18 @@
 /* exported p4_inspirations, p4_initialize, p4_render, p4_mutate */
+// todo
+// - number form
 
 class Rect {
     // NOTE the vertices order
-    constructor(scale_x, scale_y, color) {
+    constructor(scale_x, scale_y, color, x, y) {
         this.scale_x = scale_x
         this.scale_y = scale_y
         this.n_vertices = [[0, 0], [scale_x, 0]]
         this.e_vertices = [[scale_x-1, 0], [scale_x-1, scale_y-1]]
         this.s_vertices = [[scale_x-1, scale_y], [0, scale_y-1]]
         this.w_vertices = [[0,scale_y-1], [0,0]]
+        this.x = x
+        this.y = y
         this.color = color
     }
     all_vertices() {
@@ -28,27 +32,42 @@ function p4_inspirations() {
     return imgs;
 }
 
-let height;
-let width;
+let can_height;
+let can_width;
+let seed;
 function p4_initialize(inspiration) {
-    let scalar = 9
-    width = inspiration.image.width / scalar
-    height = inspiration.image.height / scalar
-    resizeCanvas(width, height);
+    seed = Math.random() * 1000
+    randomSeed(seed)
+    print(seed)
+
+    let scalar = 2
+    can_width = inspiration.image.width / scalar
+    can_height = inspiration.image.height / scalar
+    resizeCanvas(can_width, can_height);
+    generateRects()
 
     debug(inspiration);
 
-    print(height)
-    print(width)
     return {};
+}
+
+function regenerateRects(num) {
+    reseed();
+    generateRects(num)
+}
+
+function reseed() {
+    seed += random(0, 1) + 15 * random(0, 1 );
+    randomSeed(seed)
 }
 
 function debug(inspiration) {
     let scalar = 2
-    width = inspiration.image.width / scalar
-    height = inspiration.image.height / scalar
-    resizeCanvas(width, height);
-    noLoop()
+    can_width = inspiration.image.width / scalar
+    can_height = inspiration.image.height / scalar
+    resizeCanvas(can_width, can_height);
+    // noLoop()
+    frameRate(4)
 }
 
 
@@ -62,23 +81,31 @@ function draw_vertices(vertices) {
     endShape(CLOSE)
 }
 
+let rects = []
+function generateRects(n = 120) {
+    rects = []
+    let num_rects = n;
+    let subd_per_rect = 8;
+    for(let idx = 0; idx < num_rects; idx++) {
+        let rect_x = random(0, can_width)
+        let rect_y = random(0, can_height)
+        let rect_width = random(40, can_width - rect_x)  // TODO make these scale with image/canv
+        let rect_height = random(40, can_height - rect_y)
+        let r = new Rect(rect_width, rect_height, color(random(100, 255), 122), rect_x, rect_y)
+        subdivide_rect(r, subd_per_rect);
+        rects.push(r)
+    }
+}
+
 
 function p4_render(design, inspiration) {
     background("white")
-    fill("blue")
-    let num_rects = 200;
-    let subd_per_rect = 8;
-    for(let idx = 0; idx < num_rects; idx++) {
-        let rect_x = random(0, width)
-        let rect_y = random(0, height)
-        let rect_width = random(40, width - rect_x)  // TODO make these scale with image/canv
-        let rect_height = random(40, height - rect_y)
-        translate(rect_x, rect_y)
-        let r = new Rect(rect_width, rect_height, color(random(100, 255), 122))
-        subdivide_rect(r, subd_per_rect);
+    for(let idx = 0; idx < rects.length; idx++) {
+        let r = rects[idx]
         fill(r.color)
-        draw_vertices(r.all_vertices())
-        translate(-rect_x, -rect_y)
+        translate(r.x, r.y)
+        draw_vertices(rects[idx].all_vertices())
+        translate(-r.x, -r.y)
     }
 }
 

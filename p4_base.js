@@ -9,6 +9,7 @@ let currentInspiration;
 let currentCanvas;
 let currentInspirationPixels;
 
+let rectCount = 200;
 function preload() {
   
 
@@ -27,6 +28,10 @@ function preload() {
 
   restart.onclick = () =>
     inspirationChanged(allInspirations[dropper.value]);
+
+  rect_count.oninput = () => { rectCount = parseInt(rect_count.value, 10); };
+
+  regenerate.onclick = () => regenerateRects(rectCount);
 }
 
 function inspirationChanged(nextInspiration) {
@@ -35,7 +40,6 @@ function inspirationChanged(nextInspiration) {
   memory.innerHTML = "";
   setup();
 }
-
 
 
 function setup() {
@@ -89,7 +93,6 @@ function memorialize() {
 let mutationCount = 0;
 
 function draw() {
-  
   if(!currentDesign) {
     return;
   }
