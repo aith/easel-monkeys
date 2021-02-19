@@ -44,7 +44,7 @@ function p4_initialize(inspiration) {
     randomSeed(seed)
     print(seed)
 
-    let scalar = 10
+    let scalar = 2
     can_width = inspiration.image.width / scalar
     can_height = inspiration.image.height / scalar
     resizeCanvas(can_width, can_height);

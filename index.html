@@ -9,7 +9,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
     <script src="/my_design.js" defer></script>
     <script src="/p4_base.js" defer></script>
+    <style>
+          #boxes {
+            content: "";
+            display: table;
+            clear: both;
+          }
+          div {
+            float: left;
+            height: 300px;
+            width: 35%;
+            padding: 0 0px;
+          }
+          #active {
+          }
+          #best {
+            padding: 0 15px;
+            float:right
+            width: 50%;
+          }
+        #empty {
+            float:right
+            width: 90%;
+        }
+        </style>
   </head>
+
   <body>
     <select id="dropper"></select>
     <select id="filterChange">
@@ -19,8 +44,6 @@
     <button id="restart">
       restart
     </button>
-        <input type="text" id="rect_count" placeholder="200">
-        <button id="regenerate"> regenerate </button>
     <p>
       Mutation rate (<span id="rate"></span>%):<br /><input
         id="slider"
@@ -30,11 +53,16 @@
         value="100"
       />
     </p>
-    <p id="active"></p>
-    <p>Active score: <span id="activeScore"></span></p>
+    <p>Current</p>
+    <div id="active"></div>
+    <div id="best"></div>
     <p>Exploration rate: <span id="fpsCounter"></span> fps</p>
-    <p id="best"></p>
-    <p>Best score: <span id="bestScore"></span></p>
+    <p> Current score: <span id="activeScore"></span></p>
+    <p><- Best score: <span id="bestScore"></span></p>
+    <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+    Previous bests:
+    <span>
     <p id="memory" data-max-items="16"></p>
+    </span>
   </body>
 </html>

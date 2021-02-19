@@ -30,7 +30,7 @@ function preload() {
   restart.onclick = () =>
     inspirationChanged(allInspirations[dropper.value]);
 
-  filterChange.onclick = () => {
+  filterChange.onchange = () => {
     filterType = filterChange.value;
     inspirationChanged(allInspirations[dropper.value]);
   }
