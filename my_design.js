@@ -12,7 +12,6 @@ class Rect {
         this.color = color
     }
     all_vertices() {
-        print(this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices))
         return this.n_vertices.concat(this.e_vertices, this.s_vertices, this.w_vertices);
     }
 }
@@ -39,6 +38,8 @@ function p4_initialize(inspiration) {
 
     debug(inspiration);
 
+    print(height)
+    print(width)
     return {};
 }
 
@@ -62,26 +63,19 @@ function draw_vertices(vertices) {
 }
 
 
-let nv = [[20, 100],  [500, 100]]
-let ev = [[500, 100], [500, 200]]
-let sv = [[500, 200],  [20, 200]]
-let wv = [[20, 200],  [20, 100]]
-
 function p4_render(design, inspiration) {
     background("white")
     fill("blue")
-    let num_rects = 4;
+    let num_rects = 200;
+    let subd_per_rect = 8;
     for(let idx = 0; idx < num_rects; idx++) {
-        let rect_width = random(100, width)  // TODO make these scale with image/canv
-        let rect_height = random(100, height)
         let rect_x = random(0, width)
         let rect_y = random(0, height)
-        print(rect_x)
-        print(rect_y)
+        let rect_width = random(40, width - rect_x)  // TODO make these scale with image/canv
+        let rect_height = random(40, height - rect_y)
         translate(rect_x, rect_y)
         let r = new Rect(rect_width, rect_height, color(random(100, 255), 122))
-        print(r.color)
-        subdivide_rect(r, 4);
+        subdivide_rect(r, subd_per_rect);
         fill(r.color)
         draw_vertices(r.all_vertices())
         translate(-rect_x, -rect_y)
